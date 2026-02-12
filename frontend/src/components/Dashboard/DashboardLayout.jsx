@@ -22,16 +22,20 @@ const DashboardLayout = () => {
     }
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden">
+        <div className="flex h-screen bg-slate-950 overflow-hidden relative">
+            {/* Ambient Background Effects */}
+            <div className="fixed inset-0 z-0 pointer-events-none">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/10 blur-[120px] rounded-full mix-blend-screen" />
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/10 blur-[120px] rounded-full mix-blend-screen" />
+            </div>
+
             <Sidebar />
             
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-                {/* Dashboard Gradients */}
-                <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-indigo-500/5 blur-[120px] pointer-events-none rounded-full"></div>
-                <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-purple-500/5 blur-[120px] pointer-events-none rounded-full"></div>
-
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative z-10">
-                    <Outlet />
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+                    <div className="max-w-7xl mx-auto w-full">
+                        <Outlet />
+                    </div>
                 </div>
             </main>
         </div>

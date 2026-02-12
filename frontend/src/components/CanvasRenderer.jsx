@@ -96,7 +96,7 @@ const CanvasRenderer = ({
         
         // EYE RENDERING
         if (currentIsEye) {
-             if (eyeStyle === 'circle') {
+             if (eyeStyle === 'dot' || eyeStyle === 'circle') {
                 ctx.beginPath();
                 ctx.arc(cx + moduleSize/2, cy + moduleSize/2, moduleSize/2, 0, Math.PI * 2);
                 ctx.fill();

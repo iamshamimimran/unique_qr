@@ -3,80 +3,83 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Lock, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import Card from '../components/ui/Card';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const success = await login(email, password);
+    setIsLoading(false);
     if (success) navigate('/dashboard');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Decorative Gradients */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500/5 blur-[100px] rounded-full"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-500/5 blur-[100px] rounded-full"></div>
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-600/20 blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
+      </div>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-indigo-500/5 w-full max-w-lg border border-slate-100 relative z-10"
+        className="w-full max-w-lg relative z-10"
       >
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-500/20">
-            <Lock className="text-white" size={32} />
-          </div>
-          <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Welcome Back</h1>
-          <p className="text-slate-500 font-medium">Your premium QR toolkit awaits.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Email Address</label>
-            <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
-              <input 
-                type="email" 
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-[1.25rem] pl-12 pr-4 py-4 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                placeholder="name@example.com"
-              />
+        <Card className="p-8 md:p-12 border-white/10 bg-slate-900/50 backdrop-blur-xl">
+            <div className="text-center mb-10">
+            <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-neon">
+                <Lock className="text-white" size={32} />
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">Password</label>
-            <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
-              <input 
-                type="password" 
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-[1.25rem] pl-12 pr-4 py-4 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all"
-                placeholder="••••••••"
-              />
+            <h1 className="text-3xl md:text-4xl font-bold font-display text-white mb-2 tracking-tight">Welcome Back</h1>
+            <p className="text-gray-400 font-medium">Your premium QR toolkit awaits.</p>
             </div>
-          </div>
 
-          <button 
-            type="submit"
-            className="w-full py-5 bg-indigo-600 text-white rounded-[1.25rem] font-bold shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 hover:scale-[1.02] active:scale-[0.98] transition-all text-lg"
-          >
-            Sign In to Dashboard
-          </button>
-        </form>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <Input 
+                    label="EMAIL ADDRESS"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    icon={Mail}
+                />
 
-        <p className="text-center mt-8 text-sm text-slate-500 font-medium">
-          New to UniqueQR? <Link to="/signup" className="text-indigo-600 font-bold hover:text-indigo-700 transition-colors">Create account</Link>
-        </p>
+                <Input 
+                    label="PASSWORD"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    icon={Lock}
+                />
+
+                <div className="pt-2">
+                    <Button 
+                        type="submit" 
+                        className="w-full py-3.5 text-lg shadow-neon"
+                        isLoading={isLoading}
+                    >
+                        Sign In to Dashboard
+                    </Button>
+                </div>
+            </form>
+
+            <p className="text-center mt-8 text-sm text-gray-500 font-medium">
+            New to UniqueQR? <Link to="/signup" className="text-indigo-400 font-bold hover:text-indigo-300 transition-colors">Create account</Link>
+            </p>
+        </Card>
       </motion.div>
     </div>
   );

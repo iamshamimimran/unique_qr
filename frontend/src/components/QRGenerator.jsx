@@ -164,24 +164,31 @@ const QRGenerator = () => {
         mode, setMode, contentType, setContentType, contentData, updateContent,
         isEncrypted, setIsEncrypted, styleType, setStyleType,
         eyeStyle, setEyeStyle, fgColor, setFgColor,
-        gradient, setGradient, logo, setLogo,
+        gradient, setGradient, logo, setLogo, bgColor, setBgColor,
         logoBgColor, setLogoBgColor, user, navigate,
-        matrix, bgColor, isSaving, isLimitReached,
+        matrix, isSaving, isLimitReached,
         onDownload: handleDownload, onSave: handleSave,
         handleLogoUpload, decryptInput, setDecryptInput, 
         handleDecrypt, decryptedResult, setDecryptedResult
     };
 
     return (
-        <div className={`w-full ${isDashboard ? 'h-full' : 'h-screen overflow-hidden bg-slate-100'} flex text-slate-800 font-sans`}>
-            {/* Options Panel */}
-            <div className={`${isDashboard ? 'w-1/3 pr-6' : 'w-80 bg-white border-r border-slate-200 flex flex-col shadow-2xl z-20 overflow-y-auto'}`}>
+        <div className={`w-full ${isDashboard ? 'h-full flex flex-col lg:flex-row' : 'min-h-screen bg-slate-950 flex flex-col md:flex-row'} gap-4 md:gap-6 overflow-hidden`}>
+            {/* Options Panel - Responsive width */}
+            <div className={`
+                shrink-0 flex flex-col z-20 transition-all duration-300
+                ${isDashboard ? 'w-full lg:w-[350px] lg:h-full h-auto max-h-[40vh] lg:max-h-none' : 'w-full md:w-[360px] h-full'}
+            `}>
                 <GeneratorOptions {...componentProps} />
             </div>
 
-            {/* Preview Panel */}
-            <div className="flex-1">
-                <GeneratorPreview {...componentProps} />
+            {/* Preview Panel - Fluid */}
+            <div className="flex-1 flex flex-col h-full min-h-0 bg-slate-900/30 rounded-[2rem] border border-white/5 backdrop-blur-xl relative overflow-hidden ring-1 ring-white/5 shadow-2xl">
+                 {/* Decorative background blob */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+                <div className="relative z-10 w-full h-full p-6 md:p-8 overflow-y-auto custom-scrollbar flex items-center justify-center">
+                    <GeneratorPreview {...componentProps} />
+                </div>
             </div>
         </div>
     );

@@ -8,7 +8,6 @@ import Signup from './pages/Signup';
 import Pricing from './pages/Pricing';
 import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
-
 import DashboardLayout from './components/Dashboard/DashboardLayout';
 import Overview from './components/Dashboard/Overview';
 import QRHistory from './components/Dashboard/QRHistory';

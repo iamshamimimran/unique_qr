@@ -1,24 +1,24 @@
 import React from 'react';
-import { Type, Link, Wifi, User, Mail, Lock, Unlock, Zap, Box, Circle, Grid, Palette, Image as ImageIcon, Upload } from 'lucide-react';
+import { Type, Link, Wifi, User, Mail, Lock, Unlock, Zap, Box, Circle, Grid, Palette, Image as ImageIcon, Upload, Key, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import Input from '../../ui/Input';
+import Button from '../../ui/Button';
 
-const SectionHeader = ({ icon: Icon, title }) => (
-    <div className="flex items-center gap-2 text-slate-700 font-bold text-sm uppercase tracking-wide mb-3 mt-4">
-        <Icon size={16} />
+const SectionLabel = ({ icon: Icon, title }) => (
+    <div className="flex items-center gap-2 text-indigo-300/80 font-bold text-[10px] uppercase tracking-wider mb-3 mt-5 px-1">
+        <Icon size={12} />
         <span>{title}</span>
+        <div className="h-[1px] flex-1 bg-white/5 ml-2"></div>
     </div>
 );
 
-const Input = ({ label, value, onChange, placeholder, type="text" }) => (
-    <div className="mb-2">
-        {label && <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">{label}</label>}
+const CompactInput = ({ label, ...props }) => (
+    <div className="mb-3">
+        {label && <label className="block text-[10px] font-bold text-gray-400 mb-1.5 ml-1 uppercase tracking-wide">{label}</label>}
         <input 
-            type={type}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+            className="w-full bg-slate-900/60 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-gray-500 focus:ring-1 focus:ring-indigo-500/50 focus:border-indigo-500/50 outline-none transition-all hover:bg-white/5 hover:border-white/20"
+            {...props}
         />
     </div>
 );
@@ -27,6 +27,7 @@ const GeneratorOptions = ({
     mode, setMode, contentType, setContentType, contentData, updateContent, 
     isEncrypted, setIsEncrypted, styleType, setStyleType, 
     eyeStyle, setEyeStyle, fgColor, setFgColor, 
+    bgColor, setBgColor,
     gradient, setGradient, logo, setLogo, 
     logoBgColor, setLogoBgColor, user, navigate,
     handleLogoUpload, decryptInput, setDecryptInput,
@@ -41,348 +42,338 @@ const GeneratorOptions = ({
         { id: 'email', label: 'Email', icon: Mail },
     ];
 
-    const styles = [
-        { id: 'standard', label: 'Classic', icon: Box },
-        { id: 'rounded', label: 'Smooth', icon: Circle },
-        { id: 'neon', label: 'Neon', icon: Zap },
-        { id: 'dots', label: 'Dots', icon: Grid },
-    ];
-
-    const eyeStyles = [
-        { id: 'square', label: 'Square' },
-        { id: 'circle', label: 'Circle' },
-        { id: 'rounded', label: 'Rounded' },
-    ];
-
     return (
-        <div className="space-y-8 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm overflow-y-auto custom-scrollbar h-full">
+        <div className="h-full overflow-y-auto custom-scrollbar pr-2 space-y-5">
             {/* MODE TOGGLE */}
-            <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-100 mb-6">
+            <div className="flex bg-slate-900/80 p-1 rounded-xl border border-white/10 shadow-lg">
                 <button 
                     onClick={() => setMode('create')}
-                    className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all ${mode === 'create' ? 'bg-white shadow-md text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${
+                        mode === 'create' 
+                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                        : 'text-gray-500 hover:text-gray-300'
+                    }`}
                 >
+                    <Zap size={10} className={mode === 'create' ? 'text-white' : 'hidden'} />
                     Create
                 </button>
                 <button 
                     onClick={() => setMode('verify')}
-                    className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all ${mode === 'verify' ? 'bg-white shadow-md text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
+                    className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 ${
+                        mode === 'verify' 
+                        ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-lg shadow-indigo-500/20' 
+                        : 'text-gray-500 hover:text-gray-300'
+                    }`}
                 >
-                    Verify (Read)
+                    <Key size={10} className={mode === 'verify' ? 'text-white' : 'hidden'} />
+                    Verify
                 </button>
             </div>
 
             {mode === 'create' ? (
-                <>
-            {/* 1. CONTENT TYPE SELECTOR */}
-            <div>
-                <SectionHeader icon={Type} title="Data Type" />
-                <div className="grid grid-cols-5 gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
-                    {contentTypes.map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => setContentType(t.id)}
-                            className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all ${contentType === t.id ? 'bg-white shadow-md text-indigo-600 scale-105' : 'text-slate-400 hover:text-slate-600'}`}
-                        >
-                            <t.icon size={20} />
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* DYNAMIC FORMS */}
-            <div className="relative">
-                {contentType === 'text' && (
-                    <textarea 
-                        value={contentData.text}
-                        onChange={(e) => updateContent('text', null, e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
-                        rows="4"
-                        placeholder="Enter text here..."
-                    />
-                )}
-
-                {contentType === 'url' && (
-                    <Input 
-                        value={contentData.url}
-                        onChange={(e) => updateContent('url', null, e.target.value)}
-                        placeholder="https://example.com"
-                    />
-                )}
-
-                {contentType === 'wifi' && (
-                    <div className="space-y-3">
-                        <Input label="SSID" value={contentData.wifi.ssid} onChange={(e) => updateContent('wifi', 'ssid', e.target.value)} placeholder="Network Name" />
-                        <Input label="Password" type="password" value={contentData.wifi.password} onChange={(e) => updateContent('wifi', 'password', e.target.value)} placeholder="Password" />
-                        <div>
-                            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Security</label>
-                            <div className="flex bg-slate-50 rounded-xl p-1 border border-slate-200">
-                                {['WPA', 'WEP', 'nopass'].map(enc => (
-                                    <button 
-                                        key={enc}
-                                        onClick={() => updateContent('wifi', 'encryption', enc)}
-                                        className={`flex-1 py-1 text-[10px] font-bold rounded-lg transition-all ${contentData.wifi.encryption === enc ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}
-                                    >
-                                        {enc === 'nopass' ? 'Open' : enc}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
+                    
+                    {/* 1. CONTENT TYPE */}
+                    <div className="grid grid-cols-5 gap-2">
+                        {contentTypes.map(t => (
+                            <button
+                                key={t.id}
+                                onClick={() => setContentType(t.id)}
+                                className={`flex flex-col items-center justify-center py-2.5 rounded-xl transition-all border group relative overflow-hidden ${
+                                    contentType === t.id 
+                                    ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/50 shadow-[0_0_15px_rgba(99,102,241,0.15)] ring-1 ring-indigo-500/30' 
+                                    : 'bg-slate-900/40 border-white/5 text-gray-500 hover:bg-white/5 hover:border-white/10 hover:text-gray-300'
+                                }`}
+                                title={t.label}
+                            >
+                                <t.icon size={16} className={`mb-1.5 transition-transform duration-300 ${contentType === t.id ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                <span className="text-[9px] font-bold opacity-90">{t.label}</span>
+                            </button>
+                        ))}
                     </div>
-                )}
 
-                {contentType === 'vcard' && (
-                    <div className="space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
-                            <Input label="First Name" value={contentData.vcard.firstName} onChange={(e) => updateContent('vcard', 'firstName', e.target.value)} placeholder="John" />
-                            <Input label="Last Name" value={contentData.vcard.lastName} onChange={(e) => updateContent('vcard', 'lastName', e.target.value)} placeholder="Doe" />
+                    {/* DYNAMIC FORM AREA */}
+                    <div className="bg-slate-900/40 rounded-2xl p-5 border border-white/5 backdrop-blur-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                            {(() => {
+                                const Icon = contentTypes.find(t => t.id === contentType)?.icon;
+                                return Icon ? <Icon size={80} className="text-white" /> : null;
+                            })()}
                         </div>
-                        <Input label="Mobile" value={contentData.vcard.mobile} onChange={(e) => updateContent('vcard', 'mobile', e.target.value)} placeholder="+91 234 567 890" />
-                        <Input label="Email" value={contentData.vcard.email} onChange={(e) => updateContent('vcard', 'email', e.target.value)} placeholder="john@example.com" />
-                        <Input label="Company" value={contentData.vcard.company} onChange={(e) => updateContent('vcard', 'company', e.target.value)} placeholder="Acme Inc." />
-                        <Input label="Website" value={contentData.vcard.website} onChange={(e) => updateContent('vcard', 'website', e.target.value)} placeholder="https://" />
-                    </div>
-                )}
 
-                {contentType === 'email' && (
-                    <div className="space-y-3">
-                        <Input label="To" value={contentData.email.to} onChange={(e) => updateContent('email', 'to', e.target.value)} placeholder="recipient@example.com" />
-                        <Input label="Subject" value={contentData.email.subject} onChange={(e) => updateContent('email', 'subject', e.target.value)} placeholder="Hello" />
-                        <div>
-                            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Body</label>
+                        {contentType === 'text' && (
                             <textarea 
-                                value={contentData.email.body}
-                                onChange={(e) => updateContent('email', 'body', e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none"
-                                rows="3"
-                                placeholder="Message body..."
+                                value={contentData.text}
+                                onChange={(e) => updateContent('text', null, e.target.value)}
+                                className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3.5 text-xs focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all resize-none text-white placeholder-gray-500 min-h-[110px]"
+                                placeholder="Enter your text content here..."
                             />
-                        </div>
-                    </div>
-                )}
+                        )}
 
-                <button
-                    onClick={() => {
-                        if (user?.subscriptionStatus === 'free') {
-                            toast.error('Encryption is a Pro feature');
-                            navigate('/pricing');
-                        } else {
-                            setIsEncrypted(!isEncrypted);
-                        }
-                    }}
-                    className={`mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl transition-all font-bold text-xs uppercase ${isEncrypted ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                >
-                    {isEncrypted ? <Lock size={16} /> : <Unlock size={16} />}
-                    {isEncrypted ? 'Encrypted' : 'Standard (Unsecured)'}
-                </button>
-            </div>
-
-            {/* STYLE */}
-            <div>
-                <SectionHeader icon={Grid} title="Pattern" />
-                <div className="grid grid-cols-4 gap-3">
-                    {styles.map((style) => (
-                        <button
-                            key={style.id}
-                            onClick={() => setStyleType(style.id)}
-                            className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all ${
-                                styleType === style.id 
-                                ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-inner' 
-                                : 'border-slate-100 hover:bg-slate-50 text-slate-500'
-                            }`}
-                        >
-                            <style.icon size={20} />
-                            <span className="text-[10px] font-bold mt-2">{style.label}</span>
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* EYES */}
-            <div>
-                <SectionHeader icon={Box} title="Eye Shape" />
-                <div className="grid grid-cols-3 gap-2">
-                    {eyeStyles.map((eye) => (
-                        <button
-                            key={eye.id}
-                            onClick={() => setEyeStyle(eye.id)}
-                            className={`py-3 px-2 text-xs font-bold rounded-xl border transition-all ${
-                                eyeStyle === eye.id
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20'
-                                : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
-                            }`}
-                        >
-                            {eye.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* COLORS */}
-            <div>
-                <SectionHeader icon={Palette} title="Colors" />
-                
-                {/* Gradient Toggle */}
-                <div className="flex items-center justify-between mb-4 px-1">
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Use Gradient</span>
-                    <button 
-                        onClick={() => {
-                            if (user?.subscriptionStatus === 'free') {
-                                toast.error('Gradients are a Pro feature');
-                                navigate('/pricing');
-                            } else {
-                                setGradient(prev => ({ ...prev, active: !prev.active }));
-                            }
-                        }}
-                        className={`w-12 h-6 rounded-full relative transition-colors ${gradient.active ? 'bg-indigo-500' : 'bg-slate-200'}`}
-                    >
-                        <motion.div 
-                            className="w-4 h-4 bg-white rounded-full absolute top-1 left-1"
-                            animate={{ x: gradient.active ? 24 : 0 }}
-                        />
-                    </button>
-                </div>
-
-                <div className="flex gap-4">
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">
-                            {gradient.active ? 'Start Color' : 'Foreground'}
-                        </label>
-                        <input 
-                            type="color" 
-                            value={gradient.active ? gradient.start : fgColor}
-                            onChange={(e) => {
-                                if (gradient.active) setGradient({...gradient, start: e.target.value});
-                                else setFgColor(e.target.value);
-                            }}
-                            className="w-full h-12 rounded-xl cursor-pointer border-none shadow-sm"
-                        />
-                    </div>
-                    {gradient.active && (
-                        <div className="flex-1">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase mb-2 block">End Color</label>
-                            <input 
-                                type="color" 
-                                value={gradient.end}
-                                onChange={(e) => setGradient({...gradient, end: e.target.value})}
-                                className="w-full h-12 rounded-xl cursor-pointer border-none shadow-sm"
+                        {contentType === 'url' && (
+                            <CompactInput 
+                                label="Website URL"
+                                value={contentData.url}
+                                onChange={(e) => updateContent('url', null, e.target.value)}
+                                placeholder="https://example.com"
                             />
-                        </div>
-                    )}
-                </div>
-            </div>
+                        )}
 
-            {/* LOGO */}
-            <div>
-                <SectionHeader icon={ImageIcon} title="Logo (Brand)" />
-                
-                {!logo ? (
-                    <div className="border-2 border-dashed border-indigo-100 rounded-[1.5rem] p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer relative group">
-                        <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-400 mb-3 group-hover:scale-110 transition-transform">
-                            <Upload size={24} />
-                        </div>
-                        <span className="text-xs font-bold text-slate-500">Upload Your Logo</span>
-                        <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleLogoUpload}
-                            className="absolute inset-0 opacity-0 cursor-pointer"
-                        />
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-[1.5rem] border border-slate-100 shadow-inner">
-                            <div className="w-14 h-14 bg-white rounded-xl border border-white shadow-sm flex items-center justify-center overflow-hidden">
-                                <img src={logo} alt="Logo" className="max-w-full max-h-full" />
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-xs font-bold text-slate-700">Logo Uploaded</p>
-                                <button 
-                                    onClick={() => setLogo(null)}
-                                    className="text-[10px] text-red-500 hover:text-red-700 font-bold mt-1 flex items-center gap-1.5"
-                                >
-                                    <div className="w-4 h-4 rounded-full bg-red-50 flex items-center justify-center text-xs">×</div>
-                                    Remove Logo
-                                </button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-[10px] text-slate-400 font-bold uppercase mb-3 block">Logo Background</label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    onClick={() => setLogoBgColor('transparent')}
-                                    className={`py-3 px-2 text-[10px] font-bold rounded-xl border transition-all ${
-                                        logoBgColor === 'transparent'
-                                        ? 'bg-slate-900 text-white border-slate-900 shadow-lg shadow-black/10'
-                                        : 'bg-white border-slate-200 text-slate-500'
-                                    }`}
-                                >
-                                    Transparent
-                                </button>
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => setLogoBgColor('#ffffff')}
-                                        className={`flex-1 h-10 rounded-xl border transition-all shadow-sm ${logoBgColor === '#ffffff' ? 'ring-2 ring-indigo-500 ring-offset-2 border-white' : 'border-slate-100 bg-white'}`}
-                                        style={{backgroundColor: '#ffffff'}}
-                                    />
-                                    <div className="flex-1 h-10 rounded-xl border border-slate-100 overflow-hidden relative shadow-sm">
-                                        <input 
-                                            type="color" 
-                                            value={logoBgColor === 'transparent' ? '#ffffff' : logoBgColor}
-                                            onChange={(e) => setLogoBgColor(e.target.value)}
-                                            className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] cursor-pointer"
-                                        />
+                        {contentType === 'wifi' && (
+                            <div className="space-y-3">
+                                <CompactInput label="SSID" value={contentData.wifi.ssid} onChange={(e) => updateContent('wifi', 'ssid', e.target.value)} placeholder="Network Name" />
+                                <CompactInput label="Password" type="password" value={contentData.wifi.password} onChange={(e) => updateContent('wifi', 'password', e.target.value)} placeholder="Password" />
+                                <div>
+                                    <label className="block text-[10px] font-bold text-gray-400 mb-1.5 ml-1 uppercase tracking-wide">Security</label>
+                                    <div className="flex bg-slate-950/50 rounded-lg p-0.5 border border-white/10">
+                                        {['WPA', 'WEP', 'nopass'].map(enc => (
+                                            <button 
+                                                key={enc}
+                                                onClick={() => updateContent('wifi', 'encryption', enc)}
+                                                className={`flex-1 py-1.5 text-[9px] font-bold uppercase rounded transition-all ${contentData.wifi.encryption === enc ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-500 hover:text-white'}`}
+                                            >
+                                                {enc === 'nopass' ? 'Open' : enc}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
+                        )}
+
+                        {contentType === 'vcard' && (
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                    <CompactInput label="First Name" value={contentData.vcard.firstName} onChange={(e) => updateContent('vcard', 'firstName', e.target.value)} placeholder="John" />
+                                    <CompactInput label="Last Name" value={contentData.vcard.lastName} onChange={(e) => updateContent('vcard', 'lastName', e.target.value)} placeholder="Doe" />
+                                </div>
+                                <CompactInput label="Mobile" value={contentData.vcard.mobile} onChange={(e) => updateContent('vcard', 'mobile', e.target.value)} placeholder="+1 234 567 890" />
+                                <CompactInput label="Email" value={contentData.vcard.email} onChange={(e) => updateContent('vcard', 'email', e.target.value)} placeholder="email@example.com" />
+                            </div>
+                        )}
+
+                        {contentType === 'email' && (
+                            <div className="space-y-3">
+                                <CompactInput label="To" value={contentData.email.to} onChange={(e) => updateContent('email', 'to', e.target.value)} placeholder="email@example.com" />
+                                <CompactInput label="Subject" value={contentData.email.subject} onChange={(e) => updateContent('email', 'subject', e.target.value)} placeholder="Re: Project" />
+                                <textarea 
+                                    value={contentData.email.body}
+                                    onChange={(e) => updateContent('email', 'body', e.target.value)}
+                                    className="w-full bg-slate-950/50 border border-white/10 rounded-xl p-3.5 text-xs focus:ring-1 focus:ring-indigo-500/50 outline-none transition-all resize-none text-white placeholder-gray-500 mt-1"
+                                    rows="3"
+                                    placeholder="Message..."
+                                />
+                            </div>
+                        )}
+                        
+                        <div className="mt-4 pt-3 flex items-center justify-between border-t border-white/5">
+                             <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
+                                <div className={`w-1.5 h-1.5 rounded-full ${isEncrypted ? 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]' : 'bg-gray-700'}`}></div>
+                                <span>{isEncrypted ? "Securely Encrypted" : "Standard QR"}</span>
+                             </div>
+                             <button
+                                onClick={() => {
+                                    if (user?.subscriptionStatus === 'free') {
+                                        toast.error('Pro feature required');
+                                        navigate('/pricing');
+                                    } else {
+                                        setIsEncrypted(!isEncrypted);
+                                    }
+                                }}
+                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${isEncrypted ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}`}
+                            >
+                                <Lock size={10} />
+                                {isEncrypted ? 'Locked' : 'Encrypt'}
+                            </button>
                         </div>
                     </div>
-                )}
-            </div>
-                </>
+
+                    {/* CUSTOMIZATION GRID */}
+                    <div>
+                        <SectionLabel icon={Grid} title="Design & Colors" />
+                        <div className="bg-slate-900/40 rounded-2xl p-4 border border-white/5 space-y-4">
+                             {/* Patterns */}
+                             <div className="grid grid-cols-4 gap-2">
+                                {[
+                                    { id: 'standard', icon: Box, label: 'Box' },
+                                    { id: 'rounded', icon: Circle, label: 'Round' },
+                                    { id: 'neon', icon: Zap, label: 'Neon' },
+                                    { id: 'dots', icon: Grid, label: 'Dots' },
+                                ].map((s) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => setStyleType(s.id)}
+                                        className={`p-2 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all border ${
+                                            styleType === s.id 
+                                            ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20' 
+                                            : 'bg-white/5 border-white/5 text-gray-500 hover:bg-white/10 hover:text-white'
+                                        }`}
+                                    >
+                                        <s.icon size={14} />
+                                        <span className="text-[8px] font-bold uppercase">{s.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Corner Style (Eyes) - Premium */}
+                            <div>
+                                <div className="flex items-center justify-between mb-2 px-1">
+                                    <span className="text-[9px] font-bold text-gray-500 uppercase tracking-wide">Corner Style</span>
+                                    {user?.subscriptionStatus === 'free' && <span className="text-[8px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/20">PRO</span>}
+                                </div>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { id: 'square', icon: Box, label: 'Square' },
+                                        { id: 'dot', icon: Circle, label: 'Dot' },
+                                        { id: 'rounded', icon: Box, label: 'Extra Round' }, // Using Box but will style as rounded in CSS/Canvas
+                                    ].map((s) => (
+                                        <button
+                                            key={s.id}
+                                            onClick={() => {
+                                                if (user?.subscriptionStatus === 'free' && s.id !== 'square') return toast.error('Pro feature required');
+                                                setEyeStyle(s.id);
+                                            }}
+                                            className={`p-2 rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all border ${
+                                                eyeStyle === s.id 
+                                                ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-500/20' 
+                                                : 'bg-white/5 border-white/5 text-gray-500 hover:bg-white/10 hover:text-white'
+                                            }`}
+                                        >
+                                            <s.icon size={14} className={s.id === 'rounded' ? 'rounded-md' : ''} />
+                                            <span className="text-[8px] font-bold uppercase">{s.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Colors */}
+                            <div className="flex items-center gap-3 bg-slate-950/50 p-2.5 rounded-xl border border-white/10">
+                                 <button 
+                                    onClick={() => {
+                                        if (user?.subscriptionStatus === 'free') return toast.error('Pro feature');
+                                        setGradient({...gradient, active: !gradient.active});
+                                    }}
+                                    className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                                        gradient.active 
+                                        ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-md' 
+                                        : 'bg-slate-800 text-gray-600 hover:bg-slate-700 hover:text-gray-400'
+                                    }`}
+                                    title="Toggle Gradient"
+                                 >
+                                     <Zap size={14} className={gradient.active ? "fill-white" : ""} />
+                                 </button>
+                                 <div className="w-[1px] h-6 bg-white/10"></div>
+                                 <div className="flex-1 flex gap-2">
+                                     <div className="flex-1 h-9 bg-slate-900 rounded-lg relative overflow-hidden ring-1 ring-white/10 group cursor-pointer">
+                                         <input type="color" value={gradient.active ? gradient.start : fgColor} onChange={(e) => gradient.active ? setGradient({...gradient, start: e.target.value}) : setFgColor(e.target.value)} className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] cursor-pointer opacity-0" />
+                                         <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: gradient.active ? gradient.start : fgColor }} />
+                                     </div>
+                                     {gradient.active && (
+                                         <div className="flex-1 h-9 bg-slate-900 rounded-lg relative overflow-hidden ring-1 ring-white/10 group cursor-pointer">
+                                             <input type="color" value={gradient.end} onChange={(e) => setGradient({...gradient, end: e.target.value})} className="absolute inset-0 w-[150%] h-[150%] -top-[25%] -left-[25%] cursor-pointer opacity-0" />
+                                             <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: gradient.end }} />
+                                         </div>
+                                     )}
+                                 </div>
+                            </div>
+
+                            {/* Branding */}
+                            {!logo ? (
+                                <div className="relative group">
+                                    <div className="border border-dashed border-white/10 rounded-xl p-3 flex items-center justify-center gap-2 text-gray-500 hover:bg-white/5 hover:text-indigo-400 hover:border-indigo-500/30 transition-all cursor-pointer">
+                                        <Upload size={14} />
+                                        <span className="text-[10px] font-bold uppercase tracking-wide">Upload Logo</span>
+                                    </div>
+                                    <input type="file" accept="image/*" onChange={handleLogoUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-3 bg-white/5 p-2 rounded-xl border border-white/5">
+                                        <div className="w-10 h-10 bg-white p-1 rounded-lg relative overflow-hidden">
+                                            <div className="absolute inset-0 z-0 bg-gray-200" style={{ backgroundImage: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)', backgroundSize: '8px 8px' }}></div>
+                                            <div className="absolute inset-0 z-10" style={{ backgroundColor: logoBgColor }}></div>
+                                            <img src={logo} alt="brand" className="w-full h-full object-contain relative z-20" />
+                                        </div>
+                                        <div className="flex-1">
+                                             <button onClick={() => setLogo(null)} className="text-[9px] text-red-400 hover:text-red-300 font-bold uppercase">Remove Logo</button>
+                                        </div>
+                                    </div>
+
+                                    {/* Premium Logo Background Options */}
+                                    <div className="bg-slate-950/30 p-2.5 rounded-xl border border-white/5 flex flex-col gap-2">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-[9px] font-bold text-gray-500 uppercase">Logo Background</span>
+                                            {user?.subscriptionStatus === 'free' && <span className="text-[8px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/20">PRO</span>}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setLogoBgColor('#ffffff')}
+                                                className={`flex-1 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all ${logoBgColor === '#ffffff' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white/5 border-white/10 text-gray-500 hover:text-white'}`}
+                                            >
+                                                White
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (user?.subscriptionStatus === 'free') return toast.error('Pro feature required');
+                                                    setLogoBgColor('transparent');
+                                                }}
+                                                className={`flex-1 py-1.5 text-[9px] font-bold uppercase rounded-lg border transition-all ${logoBgColor === 'transparent' ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-white/5 border-white/10 text-gray-500 hover:text-white'}`}
+                                            >
+                                                None
+                                            </button>
+                                            <div className="relative group w-8">
+                                                <button 
+                                                    className={`w-full h-full rounded-lg border transition-all flex items-center justify-center ${logoBgColor !== 'transparent' && logoBgColor !== '#ffffff' ? 'border-indigo-500 ring-1 ring-indigo-500/50' : 'border-white/10 bg-white/5'}`}
+                                                    onClick={() => {
+                                                        if (user?.subscriptionStatus === 'free') toast.error('Pro feature required');
+                                                    }}
+                                                >
+                                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: logoBgColor === 'transparent' ? 'transparent' : logoBgColor, border: '1px solid rgba(255,255,255,0.2)' }} />
+                                                </button>
+                                                <input 
+                                                    type="color" 
+                                                    value={logoBgColor === 'transparent' ? '#ffffff' : logoBgColor}
+                                                    onChange={(e) => {
+                                                        if (user?.subscriptionStatus === 'free') return;
+                                                        setLogoBgColor(e.target.value);
+                                                    }}
+                                                    className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                                    disabled={user?.subscriptionStatus === 'free'}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                </motion.div>
             ) : (
                 /* VERIFY MODE UI */
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <div className="bg-indigo-600 rounded-[2rem] p-6 text-white shadow-xl shadow-indigo-500/20 relative overflow-hidden">
-                        <div className="absolute top-[-20%] right-[-20%] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
-                        <h3 className="text-lg font-bold mb-2 flex items-center gap-2 relative z-10">
-                            <Lock size={20} className="text-indigo-200" />
-                            Secret Decoder
-                        </h3>
-                        <p className="text-indigo-100 text-xs font-medium leading-relaxed relative z-10 opacity-90">
-                            Standard QR scanners will only show usage gibberish. Paste that unique code here to reveal the hidden message.
-                        </p>
-                    </div>
+                <div className="space-y-4 pt-4">
+                     <div className="bg-gradient-to-br from-slate-900 to-slate-950 rounded-2xl p-8 text-center border border-white/5 relative overflow-hidden group">
+                        <div className="absolute inset-0 bg-indigo-500/5 group-hover:bg-indigo-500/10 blur-xl transition-colors"></div>
+                        <Key size={40} className="mx-auto text-indigo-400 mb-4 drop-shadow-[0_0_10px_rgba(129,140,248,0.3)]" />
+                        <h3 className="text-sm font-bold text-white mb-1 tracking-wide uppercase">Secure Decoder</h3>
+                        <p className="text-[10px] text-gray-400">Unlock encrypted Unique QRs</p>
+                     </div>
 
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Gibberish Code</label>
-                        <textarea 
-                            value={decryptInput}
-                            onChange={(e) => setDecryptInput(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-[1.5rem] p-5 text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition-all resize-none font-mono text-slate-600 min-h-[150px]"
-                            placeholder="Paste the scanned code here... (e.g., U2FsdGVkX1...)"
-                        />
-                    </div>
-
-                    <button 
-                        onClick={handleDecrypt}
-                        className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-xl shadow-indigo-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3"
-                    >
-                        <Unlock size={20} />
-                        <span>Decrypt Now</span>
-                    </button>
-
+                     <textarea 
+                        value={decryptInput}
+                        onChange={(e) => setDecryptInput(e.target.value)}
+                        className="w-full bg-slate-900/60 border border-white/10 rounded-xl p-3.5 text-xs focus:ring-1 focus:ring-indigo-500 outline-none transition-all resize-none text-gray-300 min-h-[140px] font-mono shadow-inner"
+                        placeholder="Paste encrypted string here..."
+                    />
+                    
+                    <Button onClick={handleDecrypt} className="w-full text-xs py-2.5 shadow-neon uppercase tracking-wider font-bold" icon={Unlock}>Decrypt & Verify</Button>
+                    
                     {decryptedResult.text && (
-                        <button 
-                            onClick={() => {
-                                setDecryptInput('');
-                                setDecryptedResult({ text: '', error: false });
-                            }}
-                            className="w-full py-3 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase transition-colors"
-                        >
-                            Reset Decoder
-                        </button>
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-xl bg-white/5 border border-white/10 text-center">
+                            <p className={`text-xs ${decryptedResult.error ? 'text-red-400' : 'text-green-400 font-mono break-all'}`}>
+                                {decryptedResult.text}
+                            </p>
+                            <button onClick={() => { setDecryptInput(''); setDecryptedResult({ text: '', error: false }); }} className="text-[10px] text-gray-500 font-bold uppercase hover:text-white mt-2">Clear Result</button>
+                        </motion.div>
                     )}
                 </div>
             )}
