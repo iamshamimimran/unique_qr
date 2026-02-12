@@ -8,7 +8,7 @@ const router = express.Router();
 // Save a new QR
 router.post('/', auth, async (req, res) => {
   try {
-    const { content, type, style } = req.body;
+    const { content, type, style, trackScans } = req.body;
     const user = req.user; // Attached by middleware
 
     // Check limit for free users
@@ -16,11 +16,33 @@ router.post('/', auth, async (req, res) => {
       return res.status(403).json({ message: 'Free limit reached. Please upgrade to Pro.' });
     }
 
+    let shortId = undefined;
+    if (trackScans) {
+        // Simple random short ID generation
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        shortId = '';
+        for (let i = 0; i < 6; i++) {
+            shortId += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        
+        // Ensure uniqueness (simple check, in production should be more robust)
+        const existing = await QR.findOne({ shortId });
+        if (existing) {
+             // Retry once just in case of collision
+            shortId = '';
+            for (let i = 0; i < 6; i++) {
+                shortId += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+        }
+    }
+
     const newQR = new QR({
       userId: req.userId,
       content,
       type,
       style,
+      shortId,
+      isActive: true
     });
 
     await newQR.save();
@@ -57,6 +79,22 @@ router.delete('/:id', auth, async (req, res) => {
         res.status(200).json({ message: 'QR deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting QR' });
+    }
+});
+
+// Toggle QR active status
+router.put('/:id/status', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const qr = await QR.findOne({ _id: id, userId: req.userId });
+        if (!qr) return res.status(404).json({ message: 'QR not found' });
+        
+        qr.isActive = !qr.isActive;
+        await qr.save();
+        
+        res.status(200).json(qr);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating QR status' });
     }
 });
 

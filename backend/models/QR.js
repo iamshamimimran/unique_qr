@@ -28,6 +28,19 @@ const qrSchema = new mongoose.Schema({
     logo: String,
     logoBgColor: String,
   },
+  shortId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  scans: {
+    type: Number,
+    default: 0,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

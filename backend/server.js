@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import paymentRoutes from './routes/payment.js';
 import qrRoutes from './routes/qr.js';
+import redirectRoutes from './routes/redirect.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use('/api/auth', authRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/qr', qrRoutes);
+app.use('/r', redirectRoutes);
 
 // Health check
 app.get('/', (req, res) => {

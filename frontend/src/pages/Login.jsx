@@ -23,7 +23,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 pt-24 relative overflow-hidden">
       {/* Decorative Gradients */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-600/20 blur-[100px] rounded-full mix-blend-screen animate-pulse"></div>
@@ -36,13 +36,10 @@ const Login = () => {
         className="w-full max-w-lg relative z-10"
       >
         <Card className="p-8 md:p-12 border-white/10 bg-slate-900/50 backdrop-blur-xl">
-            <div className="text-center mb-10">
-            <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-neon">
-                <Lock className="text-white" size={32} />
-            </div>
+            {/* <div className="text-center mb-10">
             <h1 className="text-3xl md:text-4xl font-bold font-display text-white mb-2 tracking-tight">Welcome Back</h1>
             <p className="text-gray-400 font-medium">Your premium QR toolkit awaits.</p>
-            </div>
+            </div> */}
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <Input 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import StatsCard from './StatsCard';
@@ -6,10 +6,29 @@ import { QrCode, Crown, Zap, TrendingUp, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
+import axios from 'axios';
 
 const Overview = () => {
-    const { user } = useAuth();
+    const { user, API_URL } = useAuth();
     const navigate = useNavigate();
+    const [totalScans, setTotalScans] = useState(0);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                const response = await axios.get(`${API_URL}/qr`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const scans = response.data.reduce((acc, qr) => acc + (qr.scans || 0), 0);
+                setTotalScans(scans);
+            } catch (error) {
+                console.error("Failed to fetch stats", error);
+            }
+        };
+        fetchStats();
+    }, [API_URL]);
 
     const stats = [
         { 
@@ -29,7 +48,7 @@ const Overview = () => {
         { 
             icon: TrendingUp, 
             label: 'Total Scans', 
-            value: '0', 
+            value: totalScans, 
             subValue: 'Analytics coming soon',
             color: 'bg-emerald-500 shadow-emerald-500/30'
         },
@@ -43,16 +62,16 @@ const Overview = () => {
     ];
 
     return (
-        <div className="space-y-10">
+        <div className="space-y-5">
             <header className="flex flex-col gap-2">
                 <motion.h1 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="text-3xl md:text-4xl font-bold font-display text-white tracking-tight"
+                    className="text-2xl md:text-2xl font-bold font-display text-white tracking-tight"
                 >
                     Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">User</span>!
                 </motion.h1>
-                <p className="text-gray-400 font-medium text-lg">Here's what's happening with your QR codes today.</p>
+                <p className="text-gray-400 text-md">Here's what's happening with your QR codes today.</p>
             </header>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -62,7 +81,7 @@ const Overview = () => {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
+                {/* <div className="lg:col-span-2">
                     <Card className="h-full bg-white/5 border-white/5 p-8">
                         <div className="relative z-10">
                             <h2 className="text-2xl font-bold text-white mb-2 font-display">Usage Activity</h2>
@@ -85,13 +104,13 @@ const Overview = () => {
                             </div>
                         </div>
                     </Card>
-                </div>
+                </div> */}
 
                 {user?.subscriptionStatus !== 'pro' && (
-                    <Card className="bg-gradient-to-br from-indigo-600 to-purple-700 border-none p-8 text-white relative overflow-hidden h-full">
-                        <div className="absolute top-[-20%] right-[-20%] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                    <Card className="bg-gradient-to-br from-indigo-600 to-purple-700 border-none p-2 text-white relative overflow-hidden h-full">
+                        {/* <div className="absolute top-[-10%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-xl"></div> */}
                         <div className="relative z-10 flex flex-col h-full">
-                            <h2 className="text-2xl font-bold mb-4 font-display">Go Pro, Get Unlimited</h2>
+                            <h2 className="text-xl font-bold mb-2 font-display">Go Pro, Get Unlimited</h2>
                             <ul className="space-y-4 mb-8 flex-1">
                                 {['Unlimited QR Generation', 'Custom Logos & Branding', 'Advanced Analytics', 'AES Encryption'].map(f => (
                                     <li key={f} className="flex items-center gap-3 text-sm font-semibold opacity-90">

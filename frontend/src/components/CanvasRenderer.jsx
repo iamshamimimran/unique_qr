@@ -10,7 +10,8 @@ const CanvasRenderer = ({
   eyeStyle = 'square', // 'square', 'circle', 'rounded'
   logoImage = null, // URL or base64 string
   logoBgColor = '#ffffff', // Hex or 'transparent'
-  margin = 40 // Default Quiet Zone
+  margin = 40, // Default Quiet Zone
+  onRender
 }) => {
   const canvasRef = useRef(null);
 
@@ -189,7 +190,8 @@ const CanvasRenderer = ({
         if (img.complete) img.onload();
     }
 
-  }, [matrix, size, styleType, fgColor, bgColor, gradientInfo, eyeStyle, logoImage, logoBgColor]);
+    if (onRender) onRender(canvas);
+  }, [matrix, size, styleType, fgColor, bgColor, gradientInfo, eyeStyle, logoImage, logoBgColor, onRender]);
 
   return (
     <canvas 

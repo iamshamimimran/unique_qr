@@ -7,12 +7,19 @@ import toast from 'react-hot-toast';
 import Button from '../ui/Button';
 import Card from '../ui/Card';
 import Input from '../ui/Input';
+import CanvasRenderer from '../CanvasRenderer';
+import { generateQRMatrix } from '../../utils/qrLogic';
 
 const QRHistory = () => {
     const { API_URL } = useAuth();
     const [qrs, setQrs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    
+    // Download State
+    const [downloadingId, setDownloadingId] = useState(null);
+    const [tempMatrix, setTempMatrix] = useState([]);
+    const [tempStyle, setTempStyle] = useState(null);
 
     useEffect(() => {
         fetchHistory();
@@ -43,6 +50,40 @@ const QRHistory = () => {
             toast.success('QR deleted from history');
         } catch (error) {
             toast.error('Failed to delete QR');
+        }
+    };
+
+    const handleDownloadClick = async (qr) => {
+        setDownloadingId(qr._id);
+        setTempStyle(qr.style);
+        try {
+            const matrix = await generateQRMatrix(qr.content);
+            setTempMatrix(matrix);
+        } catch (error) {
+            toast.error('Failed to generate for download');
+            setDownloadingId(null);
+        }
+    };
+
+    const handleDownloadRender = (canvas) => {
+        if (!downloadingId) return;
+
+        try {
+            const url = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `unique-qr-${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            toast.success('Download started');
+        } catch (error) {
+            console.error(error);
+            toast.error('Download failed');
+        } finally {
+            setDownloadingId(null);
+            setTempMatrix([]);
+            setTempStyle(null);
         }
     };
 
@@ -114,9 +155,16 @@ const QRHistory = () => {
                                             <QrIcon size={28} />
                                         </div>
                                         <div className="flex-1 overflow-hidden">
-                                            <span className="inline-block px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 rounded-full text-[10px] font-bold uppercase mb-2">
-                                                {qr.type}
-                                            </span>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="inline-block px-2 py-0.5 bg-indigo-500/20 text-indigo-300 border border-indigo-500/20 rounded-full text-[10px] font-bold uppercase">
+                                                    {qr.type}
+                                                </span>
+                                                {qr.shortId && (
+                                                    <span className="inline-block px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/20 rounded-full text-[10px] font-bold uppercase">
+                                                        {qr.scans || 0} Scans
+                                                    </span>
+                                                )}
+                                            </div>
                                             <p className="font-bold text-gray-200 truncate mb-1 text-sm">
                                                 {qr.content}
                                             </p>
@@ -127,14 +175,65 @@ const QRHistory = () => {
                                     </div>
 
                                     <div className="flex gap-3 mt-auto">
-                                        <Button className="flex-1 text-xs" size="sm" icon={Download}>
-                                            Download
+                                        <Button 
+                                            className="flex-1 text-xs" 
+                                            size="sm" 
+                                            icon={Download}
+                                            onClick={() => handleDownloadClick(qr)}
+                                            isLoading={downloadingId === qr._id}
+                                            disabled={!!downloadingId}
+                                        >
+                                            {downloadingId === qr._id ? 'Preparing...' : 'Download'}
                                         </Button>
+                                        
+                                        {qr.shortId ? (
+                                            <Button
+                                                className={`flex-1 text-xs ${!qr.isActive ? 'opacity-75' : ''}`}
+                                                size="sm"
+                                                variant={qr.isActive ? 'primary' : 'outline'}
+                                                onClick={async () => {
+                                                    try {
+                                                        const token = localStorage.getItem('token');
+                                                        const res = await axios.put(`${API_URL}/qr/${qr._id}/status`, {}, {
+                                                            headers: { Authorization: `Bearer ${token}` }
+                                                        });
+                                                        setQrs(qrs.map(q => q._id === qr._id ? res.data : q));
+                                                        toast.success(`QR ${res.data.isActive ? 'Activated' : 'Deactivated'}`);
+                                                    } catch (e) {
+                                                        toast.error('Failed to update status');
+                                                    }
+                                                }}
+                                            >
+                                                {qr.isActive ? 'Active' : 'Inactive'}
+                                            </Button>
+                                        ) : (
+                                            <button className="flex-1 text-[10px] font-bold uppercase text-gray-600 border border-white/5 rounded-lg cursor-not-allowed" disabled>
+                                                Static
+                                            </button>
+                                        )}
                                     </div>
                                 </Card>
                             </motion.div>
                         ))}
                     </AnimatePresence>
+                </div>
+            )}
+            
+            {/* Hidden Renderer for Downloads */}
+            {downloadingId && tempStyle && (
+                <div style={{ position: 'absolute', top: -9999, left: -9999, visibility: 'hidden' }}>
+                    <CanvasRenderer 
+                        matrix={tempMatrix}
+                        size={1000} // High res for download
+                        styleType={tempStyle.styleType}
+                        fgColor={tempStyle.fgColor}
+                        bgColor={tempStyle.bgColor}
+                        gradientInfo={tempStyle.gradient}
+                        eyeStyle={tempStyle.eyeStyle}
+                        logoImage={tempStyle.logo}
+                        logoBgColor={tempStyle.logoBgColor}
+                        onRender={handleDownloadRender}
+                    />
                 </div>
             )}
         </div>

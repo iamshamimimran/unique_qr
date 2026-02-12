@@ -31,7 +31,8 @@ const GeneratorOptions = ({
     gradient, setGradient, logo, setLogo, 
     logoBgColor, setLogoBgColor, user, navigate,
     handleLogoUpload, decryptInput, setDecryptInput,
-    handleDecrypt, decryptedResult, setDecryptedResult
+    handleDecrypt, decryptedResult, setDecryptedResult,
+    trackScans, setTrackScans
 }) => {
     
     const contentTypes = [
@@ -167,23 +168,43 @@ const GeneratorOptions = ({
                         
                         <div className="mt-4 pt-3 flex items-center justify-between border-t border-white/5">
                              <div className="flex items-center gap-2 text-[10px] text-gray-500 font-medium">
-                                <div className={`w-1.5 h-1.5 rounded-full ${isEncrypted ? 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]' : 'bg-gray-700'}`}></div>
-                                <span>{isEncrypted ? "Securely Encrypted" : "Standard QR"}</span>
+                                <div className={`w-1.5 h-1.5 rounded-full ${trackScans ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : (isEncrypted ? 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]' : 'bg-gray-700')}`}></div>
+                                <span>{trackScans ? "Tracking Enabled" : (isEncrypted ? "Securely Encrypted" : "Standard QR")}</span>
+                                    {user?.subscriptionStatus === 'free' && <span className="text-[8px] bg-indigo-500/10 text-indigo-300 px-1.5 py-0.5 rounded border border-indigo-500/20">PRO</span>}
                              </div>
-                             <button
-                                onClick={() => {
-                                    if (user?.subscriptionStatus === 'free') {
-                                        toast.error('Pro feature required');
-                                        navigate('/pricing');
-                                    } else {
-                                        setIsEncrypted(!isEncrypted);
-                                    }
-                                }}
-                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${isEncrypted ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}`}
-                            >
-                                <Lock size={10} />
-                                {isEncrypted ? 'Locked' : 'Encrypt'}
-                            </button>
+                             
+                             <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        if (user?.subscriptionStatus === 'free') {
+                                            toast.error('Pro feature required');
+                                        } else {
+                                            setTrackScans(!trackScans);
+                                            // Disable encryption if tracking is on (optional, but maybe safer to keep exclusive or allow both)
+                                            if (!trackScans && isEncrypted) setIsEncrypted(false);
+                                        }
+                                    }}
+                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${trackScans ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}`}
+                                >
+                                    <Zap size={10} />
+                                    {trackScans ? 'Tracking On' : 'Track'}
+                                </button>
+
+                                <button
+                                    onClick={() => {
+                                        if (user?.subscriptionStatus === 'free') {
+                                            toast.error('Pro feature required');
+                                        } else {
+                                            setIsEncrypted(!isEncrypted);
+                                            if (!isEncrypted && trackScans) setTrackScans(false);
+                                        }
+                                    }}
+                                    className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-1.5 ${isEncrypted ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'}`}
+                                >
+                                    <Lock size={10} />
+                                    {isEncrypted ? 'Locked' : 'Encrypt'}
+                                </button>
+                             </div>
                         </div>
                     </div>
 

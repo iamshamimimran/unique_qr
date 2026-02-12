@@ -74,6 +74,8 @@ const QRGenerator = () => {
     const [logoBgColor, setLogoBgColor] = useState('#ffffff');
     const [isSaving, setIsSaving] = useState(false);
 
+    const [trackScans, setTrackScans] = useState(false);
+
     useEffect(() => {
         if (mode === 'create') {
             let rawContent = generateQRContent(contentType, contentData);
@@ -101,17 +103,31 @@ const QRGenerator = () => {
         setIsSaving(true);
         try {
             const token = localStorage.getItem('token');
+            const content = generateQRContent(contentType, contentData);
+            
             const response = await axios.post(`${API_URL}/qr`, {
-                content: generateQRContent(contentType, contentData),
+                content,
                 type: contentType,
-                style: { styleType, eyeStyle, fgColor, bgColor, gradient, logo, logoBgColor }
+                style: { styleType, eyeStyle, fgColor, bgColor, gradient, logo, logoBgColor },
+                trackScans
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
             await refreshUser();
             toast.success('QR saved to history!');
+            
+            // If tracking is enabled, regenerate the matrix with the short URL
+            if (trackScans && response.data.shortId) {
+                 const shortUrl = `${window.location.protocol}//${window.location.hostname}:5000/r/${response.data.shortId}`;
+                 const newMatrix = await generateQRMatrix(shortUrl);
+                 setMatrix(newMatrix);
+                 return { ...response.data, shortUrl }; // Return shortUrl for download
+            }
+            
             return response.data;
         } catch (error) {
+            console.error(error);
             toast.error('Failed to save QR');
         } finally {
             setIsSaving(false);
@@ -169,7 +185,8 @@ const QRGenerator = () => {
         matrix, isSaving, isLimitReached,
         onDownload: handleDownload, onSave: handleSave,
         handleLogoUpload, decryptInput, setDecryptInput, 
-        handleDecrypt, decryptedResult, setDecryptedResult
+        handleDecrypt, decryptedResult, setDecryptedResult,
+        trackScans, setTrackScans
     };
 
     return (

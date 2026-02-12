@@ -82,94 +82,145 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        {user && (
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="mb-8 flex items-center gap-2 text-slate-600 hover:text-indigo-600 transition-colors font-semibold group"
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 pt-20 relative overflow-hidden">
+      {/* Decorative Gradients */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] right-[20%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse"></div>
+        <div className="absolute bottom-[-10%] left-[20%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full mix-blend-screen animate-pulse"></div>
+      </div>
+
+      <div className="max-w-5xl mx-auto w-full relative z-10">
+        <div className="flex justify-between items-center mb-8">
+            {user && (
+            <button 
+                onClick={() => navigate('/dashboard')}
+                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-medium text-sm group"
+            >
+                <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                Back to Dashboard
+            </button>
+            )}
+        </div>
+        
+        <div className="text-center mb-10">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl md:text-5xl font-extrabold font-display bg-clip-text text-transparent bg-gradient-to-r from-white via-indigo-200 to-indigo-400 mb-3 tracking-tight"
           >
-            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-            Back to Dashboard
-          </button>
-        )}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Pricing Plans</h1>
-          <p className="text-slate-600 text-lg">Choose the best plan for your needs</p>
+            Simple, Transparent Pricing
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-slate-400 text-sm md:text-base max-w-xl mx-auto font-light"
+          >
+            Choose the plan that best fits your needs. Upgrade anytime to unlock premium features and unlimited possibilities.
+          </motion.p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto px-4">
           {/* Free Plan */}
           <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
             whileHover={{ y: -5 }}
-            className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 flex flex-col"
+            className="bg-slate-900/40 backdrop-blur-xl p-6 rounded-2xl border border-white/5 flex flex-col hover:border-white/10 transition-all duration-300"
           >
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-slate-900 mb-2">Free Plan</h2>
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-white mb-1 font-display">Starter</h2>
+              <p className="text-slate-400 text-xs mb-4">Perfect for trying out our platform</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">₹0</span>
-                <span className="text-slate-500">/month</span>
+                <span className="text-4xl font-extrabold text-white">₹0</span>
+                <span className="text-slate-500 text-sm font-medium">/month</span>
               </div>
             </div>
 
-            <ul className="space-y-4 mb-8 flex-1">
-              <li className="flex items-center gap-3 text-slate-600">
-                <Check className="text-green-500" size={20} />
+            <div className="h-px bg-white/5 mb-6 w-full" />
+
+            <ul className="space-y-3 mb-6 flex-1">
+              <li className="flex items-center gap-3 text-sm text-slate-300">
+                <div className="p-1 rounded-full bg-slate-800 text-slate-400">
+                    <Check size={12} strokeWidth={3} />
+                </div>
                 <span>5 QR Codes per month</span>
               </li>
-              <li className="flex items-center gap-3 text-slate-600">
-                <Check className="text-green-500" size={20} />
+              <li className="flex items-center gap-3 text-sm text-slate-300">
+                <div className="p-1 rounded-full bg-slate-800 text-slate-400">
+                    <Check size={12} strokeWidth={3} />
+                </div>
                 <span>Standard QR Patterns</span>
               </li>
-              <li className="flex items-center gap-3 text-slate-600">
-                <Check className="text-green-500" size={20} />
+              <li className="flex items-center gap-3 text-sm text-slate-300">
+                <div className="p-1 rounded-full bg-slate-800 text-slate-400">
+                    <Check size={12} strokeWidth={3} />
+                </div>
                 <span>Basic Customization</span>
               </li>
             </ul>
 
             <button 
-              disabled={user?.subscriptionStatus === 'free'}
-              className="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold cursor-not-allowed"
+              disabled={true}
+              className="w-full py-3 bg-slate-800/50 text-slate-400 text-sm rounded-lg font-bold cursor-not-allowed border border-white/5"
             >
-              {user?.subscriptionStatus === 'free' ? 'Current Plan' : 'Get Started'}
+              {user?.subscriptionStatus === 'free' ? 'Current Plan' : 'Free Forever'}
             </button>
           </motion.div>
 
           {/* Pro Plan */}
           <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
             whileHover={{ y: -5 }}
-            className="bg-indigo-600 p-8 rounded-3xl shadow-2xl shadow-indigo-500/20 text-white flex flex-col relative overflow-hidden"
+            className="bg-slate-900/80 backdrop-blur-xl p-6 rounded-2xl border border-indigo-500/30 flex flex-col relative overflow-hidden group shadow-2xl shadow-indigo-500/10"
           >
-            <div className="absolute top-0 right-0 p-4">
-              <Crown className="text-indigo-400 opacity-20" size={80} />
+            <div className="absolute top-0 right-0 p-4 opacity-50">
+              <Crown className="text-indigo-500/20 rotate-12" size={80} strokeWidth={1} />
             </div>
+            
+            <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
-            <div className="mb-8 relative">
-              <div className="bg-indigo-500/30 text-indigo-100 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full w-fit mb-4">
-                Recommended
+            <div className="mb-6 relative z-10">
+              <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-3 shadow-lg shadow-indigo-500/20">
+                <Crown size={10} fill="currentColor" />
+                Most Popular
               </div>
-              <h2 className="text-xl font-bold mb-2">Pro Plan</h2>
+              <h2 className="text-xl font-bold text-white mb-1 font-display">Pro Plan</h2>
+               <p className="text-indigo-200/70 text-xs mb-4">Unlock full potential & remove limits</p>
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">₹99</span>
-                <span className="text-indigo-100">/month</span>
+                <span className="text-4xl font-extrabold text-white">₹99</span>
+                <span className="text-slate-400 text-sm font-medium">/month</span>
               </div>
             </div>
 
-            <ul className="space-y-4 mb-8 flex-1 relative">
-              <li className="flex items-center gap-3">
-                <Zap className="text-yellow-400 fill-yellow-400" size={20} />
-                <span>Unlimited QR Generations</span>
+            <div className="h-px bg-gradient-to-r from-indigo-500/50 to-purple-500/50 mb-6 w-full" />
+
+            <ul className="space-y-3 mb-6 flex-1 relative z-10">
+              <li className="flex items-center gap-3 text-sm text-white">
+                <div className="p-1 rounded-full bg-indigo-500/20 text-indigo-400">
+                    <Zap size={12} fill="currentColor" />
+                </div>
+                <span className="font-medium">Unlimited QR Generations</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Check className="text-indigo-200" size={20} />
+              <li className="flex items-center gap-3 text-sm text-slate-300">
+                <div className="p-1 rounded-full bg-indigo-500/20 text-indigo-400">
+                    <Check size={12} strokeWidth={3} />
+                </div>
                 <span>Premium QR Patterns & Eyes</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Check className="text-indigo-200" size={20} />
+              <li className="flex items-center gap-3 text-sm text-slate-300">
+                <div className="p-1 rounded-full bg-indigo-500/20 text-indigo-400">
+                    <Check size={12} strokeWidth={3} />
+                </div>
                 <span>Custom Logo & Colors</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Check className="text-indigo-200" size={20} />
+              <li className="flex items-center gap-3 text-sm text-slate-300">
+                <div className="p-1 rounded-full bg-indigo-500/20 text-indigo-400">
+                    <Check size={12} strokeWidth={3} />
+                </div>
                 <span>Priority Support</span>
               </li>
             </ul>
@@ -177,12 +228,28 @@ const Pricing = () => {
             <button 
               onClick={handleSubscription}
               disabled={loading || user?.subscriptionStatus === 'pro'}
-              className={`w-full py-3 ${user?.subscriptionStatus === 'pro' ? 'bg-indigo-500 text-indigo-100' : 'bg-white text-indigo-600'} rounded-xl font-bold shadow-lg hover:bg-slate-50 transition-all active:scale-[0.98] disabled:opacity-70`}
+              className={`w-full py-3 relative z-10 rounded-lg text-sm font-bold shadow-neon transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed
+                ${user?.subscriptionStatus === 'pro' 
+                    ? 'bg-slate-800 text-slate-400 border border-white/10 shadow-none' 
+                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-500 hover:to-purple-500'}`}
             >
-              {loading ? 'Processing...' : user?.subscriptionStatus === 'pro' ? 'Active Plan' : 'Upgrade to Pro'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Processing...
+                </span>
+              ) : user?.subscriptionStatus === 'pro' ? (
+                'Current Active Plan'
+              ) : (
+                'Upgrade to Pro'
+              )}
             </button>
           </motion.div>
         </div>
+        
+        <p className="text-center text-slate-500 text-xs mt-8 mb-4">
+            Secure payments powered by Razorpay. Cancel anytime.
+        </p>
       </div>
     </div>
   );
