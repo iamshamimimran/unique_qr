@@ -119,7 +119,10 @@ const QRGenerator = () => {
             
             // If tracking is enabled, regenerate the matrix with the short URL
             if (trackScans && response.data.shortId) {
-                 const shortUrl = `${window.location.protocol}//${window.location.hostname}:5000/r/${response.data.shortId}`;
+                 // Construct short URL dynamically based on API_URL
+                 // API_URL usually ends with /api, so we remove it to get the base URL
+                 const baseUrl = API_URL.replace(/\/api\/?$/, '');
+                 const shortUrl = `${baseUrl}/r/${response.data.shortId}`;
                  const newMatrix = await generateQRMatrix(shortUrl);
                  setMatrix(newMatrix);
                  return { ...response.data, shortUrl }; // Return shortUrl for download
